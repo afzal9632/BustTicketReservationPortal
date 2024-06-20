@@ -1,19 +1,15 @@
 package com.root.services;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.root.exceptions.AdminException;
 import com.root.exceptions.BusException;
 import com.root.models.Bus;
-import com.root.models.CurrentAdminSession;
 import com.root.models.Route;
-import com.root.repository.AdminSessionDao;
 import com.root.repository.BusDao;
 import com.root.repository.RouteDao;
 
@@ -26,18 +22,19 @@ public class BusServiceImplementation implements BusService{
 	@Autowired
 	private RouteDao routeDao;
 	
-	@Autowired
-	private AdminSessionDao adminSessionDao;
+
 
 	@Override
-	public Bus addBus(Bus bus,String key) throws BusException, AdminException {
-		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to add bus!");
-		}
-		
+	public Bus addBus(Bus bus) throws BusException {
+
+
+		if(bus.getBusJourneyDate().isBefore(LocalDate.now()))
+			throw new BusException("Bus journey date can't be in past. Please add future date!");
+
+		if(bus.getDepartureTime().isBefore(bus.getArrivalTime()))
+			throw new BusException("Bus can't departure before arrival. Please add correct time!");
+
+
 		Route route=routeDao.findByRouteFromAndRouteTo(bus.getRouteFrom(), bus.getRouteTo());
 		
 		if(route != null) {
@@ -50,13 +47,9 @@ public class BusServiceImplementation implements BusService{
 	}
 
 	@Override
-	public Bus updateBus(Bus bus,String key) throws BusException, AdminException {
+	public Bus updateBus(Bus bus) throws BusException {
 		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to update bus!");
-		}
+
 		
 		Optional<Bus> existingBusOpt=busDao.findById(bus.getBusId());
 		
@@ -77,13 +70,8 @@ public class BusServiceImplementation implements BusService{
 	}
 
 	@Override
-	public Bus deleteBus(Integer busId,String key) throws BusException, AdminException {
-		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to delete bus!");
-		}
+	public Bus deleteBus(Integer busId) throws BusException {
+
 		
 		Optional<Bus> bus=busDao.findById(busId);
 		

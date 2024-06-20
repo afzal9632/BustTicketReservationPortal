@@ -1,21 +1,13 @@
 package com.root.services;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.root.exceptions.AdminException;
 import com.root.exceptions.RouteException;
-import com.root.models.Admin;
 import com.root.models.Bus;
-import com.root.models.CurrentAdminSession;
 import com.root.models.Route;
-import com.root.repository.AdminDao;
-import com.root.repository.AdminSessionDao;
 import com.root.repository.BusDao;
 import com.root.repository.RouteDao;
 @Service
@@ -27,45 +19,22 @@ public class RouteServiceImplemetation implements RouteService{
 	@Autowired
 	private BusDao busDao;
 	
-	@Autowired
-	private AdminSessionDao adminSessionDao;
-	
-	@Autowired
-	private AdminDao adminDao;
-	
+
 	@Override
-	public Route addRoute(Route route,String key) throws RouteException, AdminException {
-		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to add route!");
-		}
+	public Route addRoute(Route route) throws RouteException {
+
 		
 		Route newRoute = routeDao.findByRouteFromAndRouteTo(route.getRouteFrom(), route.getRouteTo());
 		
-		if(newRoute != null) throw new RouteException("Route :"+ newRoute.getRouteFrom() +" to "+ newRoute.getRouteTo()+ " is already present!");
-		
-		
-		List<Bus> buses = new ArrayList<>();	
-		
-		if(route != null) {
-			route.setBusList(buses);
+		if(newRoute != null) throw new RouteException("Route "+ newRoute.getRouteFrom() +" to "+ newRoute.getRouteTo()+ " is already present!");
+
 			return routeDao.save(route);
-		}
-		else {
-			throw new RouteException("This root is not available");
-		}
 	}
 
 	@Override
-	public Route updateRoute(Route route,String key) throws RouteException, AdminException {
-		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to add route!");
-		}
+	public Route updateRoute(Route route) throws RouteException {
+
+
 		
 		Optional<Route> existedRoute = routeDao.findById(route.getRouteId());
 		if(existedRoute.isPresent()) {
@@ -78,18 +47,13 @@ public class RouteServiceImplemetation implements RouteService{
 			return routeDao.save(route);
 		}
 		else
-			throw new RouteException("Route doesn't exist with routeId : "+ route.getRouteId());
+			throw new RouteException("Route doesn't exist with routeId "+ route.getRouteId());
 
 	}
 
 	@Override
-	public Route deleteRoute(int routeId,String key) throws RouteException, AdminException {
-		
-		CurrentAdminSession loggedInAdmin= adminSessionDao.findByUuid(key);
-		
-		if(loggedInAdmin == null) {
-			throw new AdminException("Please provide a valid key to add route!");
-		}
+	public Route deleteRoute(int routeId) throws RouteException {
+
 	
 		Optional<Route> route=routeDao.findById(routeId);
 		
@@ -99,7 +63,7 @@ public class RouteServiceImplemetation implements RouteService{
 			return existingRoute;
 		}
 		else
-			throw new RouteException("There is no route of routeId : "+ routeId);
+			throw new RouteException("There is no route of routeId "+ routeId);
 
 	}
 
@@ -113,7 +77,7 @@ public class RouteServiceImplemetation implements RouteService{
 			return existedRoute.get();
 		}
 		else
-			throw new RouteException("There is no route present of routeId :" + routeId);
+			throw new RouteException("There is no route present of routeId " + routeId);
 		
 	}
 

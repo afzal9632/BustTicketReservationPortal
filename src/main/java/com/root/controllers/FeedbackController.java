@@ -2,20 +2,14 @@ package com.root.controllers;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import com.root.DTO.FeedbackDTO;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.root.exceptions.BusException;
 import com.root.exceptions.FeedBackException;
@@ -32,57 +26,53 @@ public class FeedbackController {
 	
 	
 	
-	@PostMapping("/feedback/user/{busid}")
-	public ResponseEntity<Feedback> addFeedback(@Valid @RequestBody Feedback feedback,
-												@PathVariable("busid") Integer busId,
-												@RequestParam(required = false) String key) throws UserException,BusException{
+	@PostMapping("/user/adddFeedback/{busid}")
+	public ResponseEntity<Feedback> addFeedback(@Valid @RequestBody FeedbackDTO feedbackDTO,
+												@PathVariable("busid") Integer busId) throws UserException,BusException{
 		
-		Feedback feedback2 = feedbackService.addFeedBack(feedback,busId,key);
+		Feedback feedback = feedbackService.addFeedBack(feedbackDTO,busId);
 		
-		return new ResponseEntity<Feedback>(feedback2,HttpStatus.ACCEPTED);
-		
-	}
-	
-	
-	
-	@PutMapping("/feedback/user")
-	public ResponseEntity<Feedback> updateFeedback(@Valid @RequestBody Feedback feedback,@RequestParam(required = false) String key) throws FeedBackException, UserException {
-		
-		Feedback feedback2 = feedbackService.updateFeedBack(feedback,key);
-		
-		return new ResponseEntity<Feedback>(feedback2,HttpStatus.ACCEPTED);
-		
-	}
-	
-	@DeleteMapping("/feedback/user/{id}")
-	public ResponseEntity<Feedback> deleteFeedback(@PathVariable("id") Integer feedbackId,@RequestParam(required = false) String key) throws FeedBackException, UserException {
-		
-		Feedback feedback2 = feedbackService.deleteFeedBack(feedbackId,key);
-		
-		return new ResponseEntity<Feedback>(feedback2,HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(feedback,HttpStatus.ACCEPTED);
 		
 	}
 	
 	
 	
+	@PutMapping("/user/updateFeedback")
+	public ResponseEntity<Feedback> updateFeedback(@Valid @RequestBody Feedback feedback) throws FeedBackException, UserException {
+		
+		Feedback feedback2 = feedbackService.updateFeedBack(feedback);
+		
+		return new ResponseEntity<>(feedback2,HttpStatus.ACCEPTED);
+		
+	}
 	
-//	viewFeedback
+	@DeleteMapping("/user/deleteFeedback/{id}")
+	public ResponseEntity<String> deleteFeedback(@PathVariable("id") Integer feedbackId) throws FeedBackException, UserException {
+		
+		String response = feedbackService.deleteFeedBack(feedbackId);
+		
+		return new ResponseEntity<>(response,HttpStatus.ACCEPTED);
+		
+	}
 	
-	@GetMapping("/feedback/{id}")
+	
+
+	@GetMapping("/user/getFeedback/{id}")
 	public ResponseEntity<Feedback> viewFeedback(@PathVariable("id") Integer ID) throws FeedBackException {
 		
 		Feedback feedback2 = feedbackService.viewFeedback(ID);
 		
-		return new ResponseEntity<Feedback>(feedback2,HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(feedback2,HttpStatus.ACCEPTED);
 		
 	}
 	
-	@GetMapping("/feedback")
+	@GetMapping("/admin/allFeedback")
 	public ResponseEntity<List<Feedback>> viewFeedbackAll() throws FeedBackException {
 		
 		List<Feedback> feedback2 =  feedbackService.viewFeedbackAll();
 		
-		return new ResponseEntity<List<Feedback>>(feedback2,HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(feedback2,HttpStatus.ACCEPTED);
 		
 	}
 	

@@ -1,15 +1,15 @@
 package com.root.DTO;
 
-import javax.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.*;
 import lombok.Data;
+
 
 @Data
 public class UserLoginDTO {
 	
-	@NotNull(message = "Mobile number should not be null")
-	private String mobileNumber;
+	@NotBlank(message = "email can't be null or blank!")
+	private String email;
 	
-	@NotNull(message="password should not be null")
+	@NotBlank(message="password can't be null or blank!")
 	private String password;
 }

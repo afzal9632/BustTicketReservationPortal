@@ -20,7 +20,6 @@ public class BusDTO {
 	private String routeTo;
 	
 	@JsonFormat(pattern="yyyy-MM-dd")
-	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private LocalDate busJourneyDate;
 	
 }

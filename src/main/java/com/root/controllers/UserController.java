@@ -2,75 +2,92 @@ package com.root.controllers;
 
 import java.util.List;
 
-import javax.validation.Valid;
 
+import com.root.exceptions.InvalidRoleException;
+import com.root.repository.UserDao;
+import jakarta.validation.Valid;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
-import com.root.exceptions.AdminException;
+import org.springframework.web.bind.annotation.*;
+
 import com.root.exceptions.UserException;
 import com.root.models.User;
 import com.root.services.UserService;
 
 @RestController
+@Slf4j
 public class UserController {
+
+	@Autowired
+	UserDao userDao;
 	
 	@Autowired
 	private UserService userService;
+
 	
 	
-	@PostMapping("/users")
-	public ResponseEntity<User> saveUser(@Valid @RequestBody User user) throws UserException {
+	@PostMapping("/users/register")
+	public ResponseEntity<User> saveUser(@Valid @RequestBody User user) throws UserException, InvalidRoleException {
+
+		log.info("Inside User registration");
 		
 		User savedUser= userService.createUser(user);
 		
-		return new ResponseEntity<User>(savedUser,HttpStatus.CREATED);
+		return new ResponseEntity<>(savedUser,HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/users")
-	public  ResponseEntity<User> updateUser(@Valid @RequestBody User user,@RequestParam(required = false) String key ) throws UserException {
-		
-		User updatedUser= userService.updateUser(user, key);
+	@PutMapping("/users/update")
+	public  ResponseEntity<User> updateUser(@Valid @RequestBody User user ) throws UserException {
+
+		log.info("Inside User update");
+
+		User updatedUser= userService.updateUser(user);
 				
-		return new ResponseEntity<User>(updatedUser,HttpStatus.OK);
+		return new ResponseEntity<>(updatedUser,HttpStatus.OK);
 		
 	}
 	
 	@DeleteMapping("/users/admin/{userId}")
-	public  ResponseEntity<User> deleteUser(@PathVariable("userId") Integer userId ,@RequestParam(required = false) String key ) throws UserException, AdminException {
-		
-		User deletedUser= userService.deleteUser(userId, key);
+	public  ResponseEntity<User> deleteUser(@PathVariable("userId") Integer userId  ) throws UserException {
+
+		log.info("Inside Delete User");
+
+		User deletedUser= userService.deleteUser(userId);
 				
-		return new ResponseEntity<User>(deletedUser,HttpStatus.OK);
+		return new ResponseEntity<>(deletedUser,HttpStatus.OK);
 		
 	}
 	
 	@GetMapping("/users/admin/{userId}")
-	public  ResponseEntity<User> viewUser(@PathVariable("userId") Integer userId ,@RequestParam(required = false) String key ) throws UserException, AdminException {
+	public  ResponseEntity<User> viewUser(@PathVariable("userId") Integer userId  ) throws UserException {
 		
-		User user= userService.viewUserById(userId, key);
+		User user= userService.viewUserById(userId);
 				
-		return new ResponseEntity<User>(user,HttpStatus.OK);
+		return new ResponseEntity<>(user,HttpStatus.OK);
 		
 	}
 	
 	@GetMapping("/users/admin")
-	public  ResponseEntity<List<User>> viewAllUser(@RequestParam(required = false) String key ) throws UserException, AdminException {
+	public  ResponseEntity<List<User>> viewAllUser( ) throws UserException {
 		
-		List<User> userList= userService.viewUsers(key);
+		List<User> userList= userService.viewUsers();
 				
-		return new ResponseEntity<List<User>>(userList,HttpStatus.OK);
+		return new ResponseEntity<>(userList,HttpStatus.OK);
 		
 	}
-	
-	
+
+	@GetMapping("/current-user")
+	public  ResponseEntity<User> viewCurrentUser(){
+
+		User currentUser = userService.currentUser();
+
+		return new ResponseEntity<>(currentUser,HttpStatus.OK);
+
+	}
+
+
 }
